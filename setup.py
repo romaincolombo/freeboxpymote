@@ -11,17 +11,17 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='remotefreebox',
-    version='0.3.1',
+    name='freeboxpymote',
+    version='0.1.0',
 
-    description='A Python module to control a Freebox v6 remotely',
+    description='A Python module to control a Freebox Player remotely',
     long_description=long_description,
 
     # The project's main homepage.
-    url='https://github.com/MaximeCheramy/remotefreebox',
+    url='https://github.com/romaincolombo/freeboxpymote',
 
     # Author details
-    author='Maxime Chéramy and Francois Guibert',
+    author='Maxime Chéramy, Francois Guibert, Romain Colombo',
     author_email='maxime.cheramy@gmail.com',
 
     # Choose your license
@@ -39,7 +39,7 @@ setup(
     ],
 
     # What does your project relate to?
-    keywords='freebox remote control rudp hid',
+    keywords='freebox player remote control rudp hid',
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().

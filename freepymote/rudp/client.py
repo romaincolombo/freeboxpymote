@@ -5,12 +5,27 @@ from . import packet
 
 
 class client_handler(object):
-    def __init__(self, handle_packet, link_info, connected, server_lost):
-        self.handle_packet = handle_packet
-        self.link_info = link_info
-        self.connected = connected
-        self.server_lost = server_lost
+    def __init__(self, handle_packet = None, link_info = None, connected = None, server_lost = None):
+        self.handle_packet = handle_packet if handle_packet else self.default_handle_packet
+        self.link_info = link_info if link_info else self.default_link_info
+        self.connected = connected if connected else self.default_connected
+        self.server_lost = server_lost if server_lost else self.default_server_lost
 
+    @staticmethod
+    def default_handle_packet(cl, cmd, data):
+        pass
+
+    @staticmethod
+    def default_link_info(cl, info_):
+        pass
+
+    @staticmethod
+    def default_connected(cl):
+        pass
+        
+    @staticmethod
+    def default_server_lost(cl):
+        pass
 
 class client(object):
     def __init__(self, rudp, handler):

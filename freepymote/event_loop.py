@@ -19,9 +19,11 @@ class event_source(object):
 
 
 class event_loop(object):
-    def __init__(self):
+    def __init__(self, timeout = 0):
         self.events = []
         self.objects = {}
+        self.timeout = timeout
+        self.wake_up()
 
     def add(self, event):
         if event not in self.events:
@@ -33,8 +35,17 @@ class event_loop(object):
     def add_object(self, obj, callback, args=None):
         self.objects[obj] = (callback, args)
 
+    def should_continue(self):
+        if self.timeout < 1:
+            return True
+        else:
+            return time.time() < self.sleep_time
+
+    def wake_up(self):
+        self.sleep_time = time.time() + self.timeout
+
     def loop(self):
-        while True:
+        while self.should_continue():
             objs, _, _ = select.select(self.objects.keys(), [], [], 0)
             for obj in objs:
                 callback, args = self.objects[obj]

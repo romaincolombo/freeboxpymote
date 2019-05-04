@@ -28,7 +28,8 @@ def detect():
     listener = MyListener()
     ServiceBrowser(zeroconf, "_hid._udp.local.", listener=listener)
     freebox = None
-    while not freebox:
+    timeout = time.time() + 10
+    while not freebox and time.time() < timeout:
         for server in servers:
             if 'Freebox' in server.name:
                 freebox = server

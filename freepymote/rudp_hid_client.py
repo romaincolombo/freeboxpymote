@@ -1,5 +1,5 @@
 from struct import pack, unpack
-from time import sleep
+from time import time, sleep
 import sys
 
 from .rudp.client import client, client_handler
@@ -86,8 +86,11 @@ class rudp_hid_client(object):
         info("setup_device")
         self.base.connect()
         info("connect called")
+        timeout = time() + 5
         while not self.base.connected:
             sleep(0.1)
+            if(time() > timeout):
+                raise Exception("Connection failure.")
         info("connected, calling device_new")
         self.device_new(desc)
         info("device_new called")
