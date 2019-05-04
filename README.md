@@ -20,7 +20,7 @@ This fork allows usage for long running processes (servers):
 Use the class FreeboxPymote, that automatically look for the network for a freebox.
 Then, use the press method to simulate a key press.
 
-    from remotefreebox.freeboxpymote import FreeboxPymote
+    from freeboxpymote.freeboxpymote import FreeboxPymote
 
-    fbx = FreeboxPymote(timeout=5)
+    fbx = FreeboxPymote(timeout=20)
     fbx.press("Chan+")

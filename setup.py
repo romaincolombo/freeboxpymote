@@ -21,8 +21,8 @@ setup(
     url='https://github.com/romaincolombo/freeboxpymote',
 
     # Author details
-    author='Maxime Chéramy, Francois Guibert, Romain Colombo',
-    author_email='maxime.cheramy@gmail.com',
+    author='Romain Colombo',
+    author_email='romaincolombo@users.noreply.github.com',
 
     # Choose your license
     license='BSD',
