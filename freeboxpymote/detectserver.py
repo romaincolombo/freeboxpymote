@@ -1,6 +1,7 @@
 from zeroconf import ServiceBrowser, Zeroconf
 import socket
 import time
+import asyncio
 
 # Author: 1337Woflpack.
 
@@ -23,7 +24,7 @@ class MyListener(object):
                                   info.port, info.server))
 
 
-def detect():
+async def detect():
     zeroconf = Zeroconf()
     listener = MyListener()
     ServiceBrowser(zeroconf, "_hid._udp.local.", listener=listener)
@@ -33,6 +34,6 @@ def detect():
         for server in servers:
             if 'Freebox' in server.name:
                 freebox = server
-        time.sleep(0.1)
+        await asyncio.sleep(0.1)
     zeroconf.close()
     return freebox

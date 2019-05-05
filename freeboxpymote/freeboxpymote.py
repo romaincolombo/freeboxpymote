@@ -1,6 +1,7 @@
 #/usr/bin/python3
 
 import sys
+import asyncio
 from threading import Thread
 
 from .detectserver import detect
@@ -26,10 +27,10 @@ class FreeboxPymote(object):
         self._loop_thread = None
         self._client = None
 
-    def _detect(self):
+    async def _detect(self):
         if not self._host or not self._port:
             # find freebox player
-            freebox = detect()
+            freebox = await detect()
             if not freebox:
                 raise Exception("Freebox player not found.")
             success("%s found at %s:%s" % (freebox.name, freebox.address, freebox.port))
@@ -50,8 +51,8 @@ class FreeboxPymote(object):
             return False
         return self._loop_thread.is_alive()
 
-    def _connect(self):
-        self._detect()
+    async def _connect(self):
+        await self._detect()
 
         if not self._is_loop_thread_awake():
             self._reset_client()
@@ -66,19 +67,25 @@ class FreeboxPymote(object):
         if not self._client:
             try:
                 self._client = rudp_hid_client(r, client_handler(), (self._host, self._port))
-                self._client.setup_device(fbx_foils_hid_device_descriptor)
+                await self._client.setup_device(fbx_foils_hid_device_descriptor)
             except Exception as e:
                 self._reset_client
                 raise e
 
         self._evtloop.wake_up()
 
-    def press(self, key):
+    async def press_async(self, key):
         info("pressing %s" % key)
-        self._connect()
+        await self._connect()
         self._client.send_command(*fbx_get_command(key))
 
-    def write(self, text):
-        self._connect()
+    async def write_async(self, text):
+        await self._connect()
         for l in text:
             self._client.send_command(1, ord(l))
+
+    def press(self, key):
+        asyncio.get_event_loop().run_until_complete(self.press_async(key))
+
+    def write(self, text):
+        asyncio.get_event_loop().run_until_complete(self.write_async(text))

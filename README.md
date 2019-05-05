@@ -10,6 +10,7 @@ This is a fork from the amazing work of Maxime Chéramy (remotefreebox)
 The code is based from the C implementation available at https://github.com/fbx/ .
 
 This fork allows usage for long running processes (servers):
+- Uses asyncio
 - Reconnects to Freebox player after a configurable timeout duration.
 - Network errors proof
 - Prevent any dead while loop
