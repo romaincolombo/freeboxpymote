@@ -2,14 +2,16 @@ from . import address
 from . import endpoint
 from . import peer
 from . import packet
+import logging
 
+_LOGGER = logging.getLogger(__name__)
 
 class client_handler(object):
     def __init__(self, handle_packet = None, link_info = None, connected = None, server_lost = None):
-        self.handle_packet = handle_packet if handle_packet else self.default_handle_packet
-        self.link_info = link_info if link_info else self.default_link_info
-        self.connected = connected if connected else self.default_connected
-        self.server_lost = server_lost if server_lost else self.default_server_lost
+        self.handle_packet = handle_packet or self.default_handle_packet
+        self.link_info = link_info or self.default_link_info
+        self.connected = connected or self.default_connected
+        self.server_lost = server_lost or self.default_server_lost
 
     @staticmethod
     def default_handle_packet(cl, cmd, data):
@@ -22,7 +24,7 @@ class client_handler(object):
     @staticmethod
     def default_connected(cl):
         pass
-        
+
     @staticmethod
     def default_server_lost(cl):
         pass
@@ -49,7 +51,7 @@ class client(object):
             self.handler.connected(self)
 
     def peer_dropped(self, peer):
-        print("client peer dropped")
+        _LOGGER.warning("client peer dropped")
 
     def handle_data_packet(self, peer, pc):
         command = pc.header.command

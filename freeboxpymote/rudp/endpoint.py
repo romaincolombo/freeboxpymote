@@ -1,7 +1,9 @@
 from . import address
 from . import packet
 import socket
+import logging
 
+_LOGGER = logging.getLogger(__name__)
 
 class endpoint_handler(object):
     def __init__(self, handle_packet):
@@ -19,7 +21,7 @@ class endpoint(object):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.rudp.evtloop.add_object(self.socket, self._handle_incoming)
         addr = self.address.get()
-        print("bind sur ", addr)
+        _LOGGER.debug("bind on {}".format(addr))
         self.socket.bind(addr)
 
     def close(self):

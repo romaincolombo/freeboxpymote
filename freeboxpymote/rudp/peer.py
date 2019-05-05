@@ -4,7 +4,9 @@ from ..event_loop import event_source
 import time
 from struct import pack, unpack
 from random import randint
+import logging
 
+_LOGGER = logging.getLogger(__name__)
 
 ACTION_TIMEOUT = 5000
 DROP_TIMEOUT = ACTION_TIMEOUT * 2
@@ -60,7 +62,7 @@ class peer(object):
             return 'retransmitted'
 
         if (self.in_seq_reliable + 1) % (2 ** 16) != reliable_seq:
-            print("unsequenced!", self.in_seq_reliable + 1, reliable_seq)
+            _LOGGER.debug("unsequenced! {} {}".format(self.in_seq_reliable + 1, reliable_seq))
             return 'unsequenced'
 
         self.in_seq_reliable = reliable_seq
@@ -86,11 +88,11 @@ class peer(object):
         adv_delta = ack - self.out_seq_reliable
 
         if ack_delta < 0:
-            print("ack in past")
+            _LOGGER.debug("ack in past")
             return 0
 
         if adv_delta > 0:
-            print("packet acking an unset seq no -- broken packet")
+            _LOGGER.debug("packet acking an unset seq no -- broken packet")
             return 1
 
         self.out_seq_acked = ack
@@ -147,7 +149,7 @@ class peer(object):
         if state == 'unsequenced':
             if (self.state == 'connecting' and
                     header.command == packet.RUDP_CMD_CONN_RSP):
-                print("run.")
+                _LOGGER.debug("run.")
                 self.in_seq_reliable = header.reliable
                 self.state = 'connected'
         elif state == 'retransmitted':
@@ -155,7 +157,7 @@ class peer(object):
         elif state == 'sequenced':
             self.abs_timeout_deadline = rudp_timestamp() + DROP_TIMEOUT
             if header.command == packet.RUDP_CMD_CLOSE:
-                print("peer dead (CMD CLOSE)")
+                _LOGGER.debug("peer dead (CMD CLOSE)")
                 self.state = 'dead'
                 self.handler.dropped(self)
             elif header.command == packet.RUDP_CMD_PING:
@@ -211,7 +213,7 @@ class peer(object):
             head = self.sendq[0]
             header = head.header
             if header.opt & packet.RUDP_OPT_RETRANSMITTED:
-                print("already transmitted head, wait for rto")
+                _LOGGER.debug("already transmitted head, wait for rto")
                 # already transmitted head, wait for rto
                 delta = rudp_timestamp() - self.last_out_time + self.rto
             else:
@@ -258,7 +260,7 @@ class peer(object):
         self.scheduled = False
 
         if self.abs_timeout_deadline < rudp_timestamp():
-            print(rudp_timestamp(), "Dropped because abs timeout deadline < now")
+            _LOGGER.debug(rudp_timestamp(), "Dropped because abs timeout deadline < now")
             self.handler.dropped(self)
             return
 

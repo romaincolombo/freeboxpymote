@@ -15,6 +15,8 @@ This fork allows usage for long running processes (servers):
 - Network errors proof
 - Prevent any dead while loop
 - Auto discovery is optional. Only manual configuration works across networks (ie: Docker network). Also, several Freebox player can be managed.
+- Expose discovery service
+- Logging improved
 
 ## Usage
 

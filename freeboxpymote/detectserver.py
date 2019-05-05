@@ -9,8 +9,8 @@ servers = []
 
 
 class Server(object):
-    def __init__(self, address, port, name):
-        self.address = address
+    def __init__(self, host, port, name):
+        self.host = host
         self.port = port
         self.name = name
 
@@ -23,17 +23,29 @@ class MyListener(object):
             servers.append(Server(socket.inet_ntoa(info.address),
                                   info.port, info.server))
 
-
-async def detect():
+async def detect(timeout=None, first=False):
+    global servers
     zeroconf = Zeroconf()
     listener = MyListener()
     ServiceBrowser(zeroconf, "_hid._udp.local.", listener=listener)
-    freebox = None
-    timeout = time.time() + 10
-    while not freebox and time.time() < timeout:
+    freeboxes = []
+    finished = False
+    if not timeout:
+        timeout = 10
+    timeout_time = time.time() + timeout
+    while not finished and time.time() < timeout_time:
         for server in servers:
-            if 'Freebox' in server.name:
-                freebox = server
+            if 'Freebox' in server.name and server not in freeboxes:
+                freeboxes.append(server)
+                if first:
+                    finished = True
         await asyncio.sleep(0.1)
     zeroconf.close()
-    return freebox
+    servers = []
+    return freeboxes
+
+async def detect_first(timeout=None):
+    freeboxes = await detect(timeout=timeout, first=True)
+    if not freeboxes:
+        return None
+    return freeboxes[0]

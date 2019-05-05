@@ -2,6 +2,7 @@ from struct import pack, unpack
 from time import time
 import asyncio
 import sys
+import logging
 
 from .rudp.client import client, client_handler
 from .rudp.packet import RUDP_CMD_APP
@@ -17,10 +18,10 @@ FOILS_HID_GRAB = 6
 FOILS_HID_RELEASE = 7
 FOILS_HID_FEATURE_SOLLICIT = 8
 
+_LOGGER = logging.getLogger(__name__)
 
 def info(s):
-    print(s, file=sys.stderr)
-
+    _LOGGER.debug(s)
 
 def round_up(x):
     return (x + 3) & ~3

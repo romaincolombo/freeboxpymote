@@ -2,22 +2,17 @@
 
 import sys
 import asyncio
+import logging
 from threading import Thread
 
-from .detectserver import detect
+from .detectserver import detect, detect_first
 from .rudp.client import client_handler
 from .event_loop import event_loop
 from .rudp.rudp import rudp
 from .rudp_hid_client import rudp_hid_client
 from .fbx_descriptor import fbx_foils_hid_device_descriptor, fbx_get_command
 
-
-def info(s):
-    print(s, file=sys.stderr)
-
-def success(s):
-    print(s, file=sys.stderr)
-
+_LOGGER = logging.getLogger(__name__)
 
 class FreeboxPymote(object):
     def __init__(self, host = None, port = None, timeout = 0):
@@ -30,11 +25,11 @@ class FreeboxPymote(object):
     async def _detect(self):
         if not self._host or not self._port:
             # find freebox player
-            freebox = await detect()
+            freebox = await FreeboxPymote.discover_first_async()
             if not freebox:
                 raise Exception("Freebox player not found.")
-            success("%s found at %s:%s" % (freebox.name, freebox.address, freebox.port))
-            self._host = freebox.address
+            _LOGGER.info("%s found at %s:%s" % (freebox.name, freebox.host, freebox.port))
+            self._host = freebox.host
             self._port = freebox.port
 
     def _reset_client(self):
@@ -42,7 +37,7 @@ class FreeboxPymote(object):
             try:
                 self._client.base.endpoint.socket.close()
             except Exception as e:
-                info("Socket closing failure. %s" % e)
+                _LOGGER.warning("Socket closing failure. %s" % e)
             finally:
                 self._client = None
 
@@ -75,7 +70,7 @@ class FreeboxPymote(object):
         self._evtloop.wake_up()
 
     async def press_async(self, key):
-        info("pressing %s" % key)
+        _LOGGER.info("pressing %s" % key)
         await self._connect()
         self._client.send_command(*fbx_get_command(key))
 
@@ -89,3 +84,19 @@ class FreeboxPymote(object):
 
     def write(self, text):
         asyncio.get_event_loop().run_until_complete(self.write_async(text))
+
+    @staticmethod
+    async def discover_async(timeout=None):
+        return await detect(timeout)
+
+    @staticmethod
+    async def discover_first_async(timeout=None):
+        return await detect_first(timeout)
+
+    @staticmethod
+    def discover(timeout=None):
+        return asyncio.get_event_loop().run_until_complete(FreeboxPymote.discover_async(timeout))
+
+    @staticmethod
+    def discover_first(timeout=None):
+        return asyncio.get_event_loop().run_until_complete(FreeboxPymote.discover_first_async(timeout))
